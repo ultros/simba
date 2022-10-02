@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-
+import smb.SMBConnection
 import smb_tools
 import argparse
 
 
 def main():
 
-    parser = argparse.ArgumentParser(description="simba - tools for working with SMB")
+    parser = argparse.ArgumentParser(description="simba - tool for working with SMB")
 
     parser.add_argument('-p', '--port', required=True, type=int,
-                        default=445, dest="port",
-                        help='Specify port to connect to (default: 445).')
+                        default=139, dest="port",
+                        help='Specify port to connect to (default: 139).')
 
     parser.add_argument('-i', '--ip', required=True, type=str,
                         dest="ip",
@@ -28,9 +28,9 @@ def main():
                         dest='remote_name',
                         help='Specify target ipaddress')
 
-    parser.add_argument('-d', '--domain', required=True, type=str,
-                        dest='domain',
-                        help='Specify domain name of target IP address.')
+    parser.add_argument('-t', '--target_system', required=True, type=str,
+                        dest='target_system',
+                        help='Specify the system name (E.g. laptop01) to connect to.')
 
     parser.add_argument("--html", required=False, type=str,
                         default=None, dest="html",
@@ -47,9 +47,9 @@ def main():
     username = args.username
     password = args.password
     remote_name = args.remote_name
-    domain = args.domain
+    target_system = args.target_system
 
-    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, domain)
+    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system)
     smb_client.smb_connect()
     smb_client.smb_list_shares()
 
@@ -82,12 +82,12 @@ def main():
             case "shares":
                 smb_client.smb_list_shares()
 
-            case "ls":
-                print("[ls] > Enter service name (share name e.g. C$): ", end="")
+            case "cd":
+                print("[cd] > Enter service name (share name e.g. C$): ", end="")
                 service_name = input()
 
                 while True:
-                    print(f"[{service_name}] > Enter share path (e.g. \\abc\\def): ", end="")
+                    print(f"[{service_name}] > Enter command and path (e.g. command \\abc\\def): ", end="")
                     share_path = input()
 
                     if share_path == "help":
@@ -99,17 +99,16 @@ def main():
                         break
 
                     if share_path[:2] == "ls":
-                        smb_client.smb_list_files(service_name, share_path[4:])
+                        try:
+                            smb_client.smb_list_files(service_name, share_path[3:])
+                        except smb.SMBConnection.NotReadyError as e:
+                            print(e)
 
                     if share_path[:8] == "download":
-                        smb_client.smb_download_file(service_name, share_path[10:])
-
-                    # if share_path[:2] == "cd":
-                    #     working_directory = share_path[10:]
-                    #     smb_client.smb_working_directory(service_name, working_directory)
+                        smb_client.smb_download_file(service_name, share_path[9:])
 
             case "exit":
-                print("Closing application...")
+                print("[!] Closing application...")
                 smb_client.smb_disconnect()
                 exit(0)
 
