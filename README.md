@@ -15,7 +15,7 @@ $ [cd] > Enter service name (share name e.g. C$):  c$
 
 ...
 
-[c$] > Enter command and path (e.g. command \abc\def): ls tools  
+$ [c$] > Enter command and path (e.g. command \abc\def): ls tools  
 .  
 ..  
 CyberChef_v9.37.3  

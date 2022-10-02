@@ -83,7 +83,7 @@ def main():
                 smb_client.smb_list_shares()
 
             case "cd":
-                print("[cd] > Enter service name (share name e.g. C$): ", end="")
+                print("[smb > cd] > Enter service name (share name e.g. test-share): ", end="")
                 service_name = input()
 
                 while True:
