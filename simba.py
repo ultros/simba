@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
+import argparse
 import smb.SMBConnection
 import smb_tools
-import argparse
 
 
 def main():
-
     parser = argparse.ArgumentParser(description="simba - tool for working with SMB")
 
     parser.add_argument('-p', '--port', required=True, type=int,
@@ -60,18 +59,18 @@ def main():
         match command:
             case "help":
                 print("Commands:")
-                print("  smb > connect")
-                print("  smb > disconnect")
-                print("  smb > shares")
-                print("  smb > ls")
-                print("  smb > username")
-                print("  smb > password")
+                print("  smb > connect (connect session)")
+                print("  smb > disconnect (disconnect session)")
+                print("  smb > shares (list all shares)")
+                print("  smb > use (specify service/share name)")
+                print("  smb > username (retrieve login username)")
+                print("  smb > password (retrieve login password)")
 
             case "username":
-                print(smb_client.smb_connect_username())
+                print(smb_client.username)
 
             case "password":
-                print(smb_client.smb_connect_password())
+                print(smb_client.password)
 
             case "connect":
                 smb_client.smb_connect()
@@ -82,18 +81,18 @@ def main():
             case "shares":
                 smb_client.smb_list_shares()
 
-            case "cd":
-                print("[smb > cd] > Enter service name (share name e.g. test-share): ", end="")
+            case "use":
+                print("[smb > use] > Enter service name (share name e.g. test-share): ", end="")
                 service_name = input()
-
                 while True:
                     print(f"[{service_name}] > Enter command and path (e.g. command \\abc\\def): ", end="")
                     share_path = input()
 
                     if share_path == "help":
-                        print("ls - List files and directories")
-                        print("download filename - Download a file from share")
-                        print("exit - Exit to main menu")
+                        print("ls (list files and directories)")
+                        print("download filename (download the specified file)")
+                        print("upload (specify a file to copy and the destination path on the service/share name)")
+                        print("exit (exit to main menu)")
 
                     if share_path == "exit":
                         break
@@ -107,10 +106,19 @@ def main():
                     if share_path[:8] == "download":
                         smb_client.smb_download_file(service_name, share_path[9:])
 
+                    if share_path[:6] == "upload":
+                        print("Type full path to local file: ", end='')
+                        local_file = input()
+                        print("Type full path to the remote file destination: ", end='')
+                        share_path = input()
+
+                        smb_client.smb_upload_file(service_name, local_file, share_path)
+
             case "exit":
                 print("[!] Closing application...")
                 smb_client.smb_disconnect()
                 exit(0)
+
 
 if __name__ == '__main__':
     main()
