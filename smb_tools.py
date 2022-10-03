@@ -1,9 +1,8 @@
+import ntpath
 import os
 
 import smb.smb_structs
 from smb.SMBConnection import SMBConnection
-import ntpath
-from os.path import exists
 
 
 class SmbTools(object):
@@ -16,7 +15,6 @@ class SmbTools(object):
         self.target_name = target_name
         self.smb_connection = ""
 
-
     def smb_connect(self):
         try:
             smb_connection = SMBConnection(self.username, self.password,
@@ -27,7 +25,6 @@ class SmbTools(object):
 
             else:
                 print("[!] Failed to connect...")
-                exit(0)
 
         except Exception as e:
             print(e)
@@ -46,21 +43,25 @@ class SmbTools(object):
                 print(share.name)
         except Exception as e:
             print(f"[!] Failed to connect...")
-            exit(0)
 
     def smb_download_file(self, service_name, share_path):
         try:
             with open(ntpath.basename(share_path), 'wb') as file_obj:
-                self.smb_connection.retrieveFile(service_name, share_path, file_obj)
+                print(
+                    f"[+] {self.smb_connection.retrieveFile(service_name, share_path, file_obj)[1]} bytes downloaded!")
 
         except Exception as e:
-            #print(e)
+            # print(e)
             print(f"[!] File ({service_name} {share_path}) does not exist at provided path...")
             print(f"[!] Removing empty file ({service_name} {share_path}) from local file system...")
             os.remove(share_path)
 
-    def smb_upload_file(self):
-        pass
+    def smb_upload_file(self, service_name: str, local_file: str, share_path: str):
+        try:
+            with open(local_file, 'rb') as file_obj:
+                print(f"[+] {self.smb_connection.storeFile(service_name, share_path, file_obj)} bytes uploaded!")
+        except FileNotFoundError:
+            print("[!] Source file does not exist at specified path!")
 
     def smb_list_files(self, service_name, share_path="\\"):
         try:
@@ -69,13 +70,7 @@ class SmbTools(object):
             for item in files_folders:
                 print(f"{item.filename}")
 
-        except smb.smb_structs.OperationFailure as e:
-            print(f"Failed to list {service_name} {share_path}: Verify Path (E.g. \directory\pathtofile.exe")
 
-    def smb_connect_username(self):
-        '''Returns currently logged in user.'''
-        return self.username
-
-    def smb_connect_password(self):
-        '''Returns logged in user password.'''
-        return self.password
+        except smb.smb_structs.OperationFailure:
+            print(f"Failed to list {service_name} {share_path}: Verify path "
+                  f"(E.g. \directory\pathtofile.exe) OR PERMISSIONS")
