@@ -23,17 +23,13 @@ def main():
                         dest='password',
                         help='Specify Account Password')
 
-    parser.add_argument('--remote_name', required=False, type=str,
+    parser.add_argument('--remote_name', required=True, type=str,
                         dest='remote_name',
                         help='Specify target ipaddress')
 
-    parser.add_argument('-t', '--target_system', required=True, type=str,
-                        dest='target_system',
+    parser.add_argument('-t', '--target_system_name', required=True, type=str,
+                        dest='target_system_name',
                         help='Specify the system name (E.g. laptop01) to connect to.')
-
-    parser.add_argument("--html", required=False, type=str,
-                        default=None, dest="html",
-                        help='Specify HTML report name')
 
     parser.add_argument("--pdf", required=False, type=str,
                         default=None, dest="pdf",
@@ -46,7 +42,7 @@ def main():
     username = args.username
     password = args.password
     remote_name = args.remote_name
-    target_system_name = args.target_system
+    target_system_name = args.target_system_name
 
     smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system_name)
     smb_client.smb_connect()
@@ -118,10 +114,11 @@ def main():
                     smb_client.smb_upload_file(service_name, upload_command[1], upload_command[2])
 
                 if command == "help":
-                    print(" ls PATH (list files and directories)")
-                    print(" download REMOTE_FILENAME LOCAL_FILENAME")
-                    print(" upload LOCAL_FILE REMOTE_FILE")
-                    print(" exit (exit to main menu)")
+                    print("   Commands:")
+                    print("   ls PATH (list files and directories)")
+                    print("   download REMOTE_FILE LOCAL_FILE")
+                    print("   upload LOCAL_FILE REMOTE_FILE")
+                    print("   exit (exit to main menu)")
 
 
 if __name__ == '__main__':
