@@ -12,20 +12,17 @@ NETLOGON
 SYSVOL  
 test-share
 
-$ smb > use  
-$ [smb > use] > Enter service name (share name e.g. test-share): test-share  
-$ [test-share] > Enter command and path (e.g. command \abc\def): ls  
+$ smb > use test-share  
+$ [test-share] > ls  
 .  
 ..  
 .hidden.txt  
 test.txt
 
-$ [test-share] > Enter command and path (e.g. command \abc\def): download test.txt    
+$ [test-share] > download test.txt /tmp/tempfile.txt    
 15 bytes downloaded!
 
-$ [test-share] > Enter command and path (e.g. command \abc\def): upload  
-Type full path to local file: /tmp/test.txt  
-Type full path to the remote file destination: test22.txt  
+$ [test-share] > upload /tmp/tempfile.txt /directory/test22.txt  
 15 bytes uploaded!  
 
 $ smb > exit  
