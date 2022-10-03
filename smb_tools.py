@@ -44,7 +44,7 @@ class SmbTools(object):
         except Exception as e:
             print(f"[!] Failed to connect...")
 
-    def smb_download_file(self, service_name, share_path):
+    def smb_download_file(self, service_name: str, share_path: str):
         try:
             with open(ntpath.basename(share_path), 'wb') as file_obj:
                 print(
@@ -63,13 +63,12 @@ class SmbTools(object):
         except FileNotFoundError:
             print("[!] Source file does not exist at specified path!")
 
-    def smb_list_files(self, service_name, share_path="\\"):
+    def smb_list_files(self, service_name: str, share_path="\\"):
         try:
             files_folders = self.smb_connection.listPath(service_name, share_path, 65591, '*', 30)
 
             for item in files_folders:
                 print(f"{item.filename}")
-
 
         except smb.smb_structs.OperationFailure:
             print(f"Failed to list {service_name} {share_path}: Verify path "
