@@ -46,9 +46,9 @@ def main():
     username = args.username
     password = args.password
     remote_name = args.remote_name
-    target_system = args.target_system
+    target_system_name = args.target_system
 
-    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system)
+    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system_name)
     smb_client.smb_connect()
     smb_client.smb_list_shares()
 
@@ -56,68 +56,72 @@ def main():
         print("smb > ", end="")
         command = input()
 
-        match command:
-            case "help":
-                print("Commands:")
-                print("  smb > connect (connect session)")
-                print("  smb > disconnect (disconnect session)")
-                print("  smb > shares (list all shares)")
-                print("  smb > use (specify service/share name)")
-                print("  smb > username (retrieve login username)")
-                print("  smb > password (retrieve login password)")
+        if command == "help":
+            print(f"    Commands:")
+            print(f"    shares (list service names/shares)")
+            print(f"    use SERVICE_NAME (connect to specified service name/share)")
+            print(f"    username (get username)")
+            print(f"    password (get password)")
+            print(f"    remote_name (get remote_name)")
+            print(f"    target_system_name (get target system name)")
 
-            case "username":
-                print(smb_client.username)
+        if command == "username":
+            print(smb_client.username)
 
-            case "password":
-                print(smb_client.password)
+        if command == "password":
+            print(smb_client.password)
 
-            case "connect":
-                smb_client.smb_connect()
+        if command == "remote_name":
+            print(smb_client.remote_name)
 
-            case "disconnect":
-                smb_client.smb_disconnect()
+        if command == "target_system_name":
+            print(smb_client.target_system_name)
 
-            case "shares":
-                smb_client.smb_list_shares()
+        if command == "connect":
+            smb_client.smb_connect()
 
-            case "use":
-                print("[smb > use] > Enter service name (share name e.g. test-share): ", end="")
-                service_name = input()
-                while True:
-                    print(f"[{service_name}] > Enter command and path (e.g. command \\abc\\def): ", end="")
-                    share_path = input()
+        if command == "disconnect":
+            smb_client.smb_disconnect()
 
-                    if share_path == "help":
-                        print("ls (list files and directories)")
-                        print("download filename (download the specified file)")
-                        print("upload (specify a file to copy and the destination path on the service/share name)")
-                        print("exit (exit to main menu)")
+        if command == "shares":
+            smb_client.smb_list_shares()
 
-                    if share_path == "exit":
-                        break
+        if command == "exit":
+            smb_client.smb_disconnect()
+            exit(0)
 
-                    if share_path[:2] == "ls":
-                        try:
-                            smb_client.smb_list_files(service_name, share_path[3:])
-                        except smb.SMBConnection.NotReadyError as e:
-                            print(e)
+        if command[0:4] == "use ":
+            service_name = command[4:]
 
-                    if share_path[:8] == "download":
-                        smb_client.smb_download_file(service_name, share_path[9:])
+            while True:
+                print(f"[{service_name}] > ", end = "")
+                command = input()
 
-                    if share_path[:6] == "upload":
-                        print("Type full path to local file: ", end='')
-                        local_file = input()
-                        print("Type full path to the remote file destination: ", end='')
-                        share_path = input()
+                if command == "exit":
+                    print("Disconnecting from service...")
+                    break
 
-                        smb_client.smb_upload_file(service_name, local_file, share_path)
+                if command[:2] == "ls":
+                    try:
+                        smb_client.smb_list_files(service_name, command[3:]) # ls /TO/PATH
+                    except smb.SMBConnection.NotReadyError as e:
+                        print(e)
 
-            case "exit":
-                print("[!] Closing application...")
-                smb_client.smb_disconnect()
-                exit(0)
+                if command[:8] == "download":
+                    download_command = command.split(" ", 3)
+                    smb_client.smb_download_file(service_name,
+                                                 download_command[1],
+                                                 download_command[2]) # download REMOTE_FILE LOCAL_DEST
+
+                if command[:6] == "upload":
+                    upload_command = command.split(" ", 3)
+                    smb_client.smb_upload_file(service_name, upload_command[1], upload_command[2])
+
+                if command == "help":
+                    print(" ls PATH (list files and directories)")
+                    print(" download REMOTE_FILENAME LOCAL_FILENAME")
+                    print(" upload LOCAL_FILE REMOTE_FILE")
+                    print(" exit (exit to main menu)")
 
 
 if __name__ == '__main__':

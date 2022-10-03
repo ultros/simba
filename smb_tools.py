@@ -6,19 +6,19 @@ from smb.SMBConnection import SMBConnection
 
 
 class SmbTools(object):
-    def __init__(self, ip: str, port: int, username: str, password: str, remote_name: str, target_name: str):
+    def __init__(self, ip: str, port: int, username: str, password: str, remote_name: str, target_system_name: str):
         self.ip = ip
         self.port = port
         self.username = username
         self.password = password
         self.remote_name = remote_name
-        self.target_name = target_name
+        self.target_system_name = target_system_name
         self.smb_connection = ""
 
     def smb_connect(self):
         try:
             smb_connection = SMBConnection(self.username, self.password,
-                                           self.remote_name, self.target_name, use_ntlm_v2=True)
+                                           self.remote_name, self.target_system_name, use_ntlm_v2=True)
             if smb_connection.connect(self.ip, self.port):
                 self.smb_connection = smb_connection
                 print("[+] Connected")
@@ -38,23 +38,25 @@ class SmbTools(object):
 
     def smb_list_shares(self):
         try:
-            print(f"[{self.ip} - {self.target_name}]")
+            print(f"[{self.ip} - {self.target_system_name}]")
             for share in self.smb_connection.listShares():
                 print(share.name)
         except Exception as e:
             print(f"[!] Failed to connect...")
 
-    def smb_download_file(self, service_name: str, share_path: str):
+    def smb_download_file(self, service_name: str, source: str, destination: str):
         try:
-            with open(ntpath.basename(share_path), 'wb') as file_obj:
-                print(
-                    f"[+] {self.smb_connection.retrieveFile(service_name, share_path, file_obj)[1]} bytes downloaded!")
+            with open(destination, 'wb') as file_obj:
+                response = self.smb_connection.retrieveFile(service_name, source, file_obj)
+                print(f"[+] {response[1]} bytes downloaded")
 
-        except Exception as e:
-            # print(e)
-            print(f"[!] File ({service_name} {share_path}) does not exist at provided path...")
-            print(f"[!] Removing empty file ({service_name} {share_path}) from local file system...")
-            os.remove(share_path)
+        except smb.smb_structs.OperationFailure:
+            print(f"[!] Unable to open file (permissions)")
+            print(f"[!] Erasing empty local file...")
+            os.remove(destination)
+        except TypeError:
+            print(f"[!] Source file does not exist or permissions error")
+
 
     def smb_upload_file(self, service_name: str, local_file: str, share_path: str):
         try:
@@ -62,6 +64,8 @@ class SmbTools(object):
                 print(f"[+] {self.smb_connection.storeFile(service_name, share_path, file_obj)} bytes uploaded!")
         except FileNotFoundError:
             print("[!] Source file does not exist at specified path!")
+        except smb.smb_structs.OperationFailure:
+            print(f"[!] Failed to store on {service_name}: Unable to open file")
 
     def smb_list_files(self, service_name: str, share_path="\\"):
         try:
