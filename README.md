@@ -1,23 +1,33 @@
 # simba
-Tools used to interact with SMB shares.
 
-$ ./simba.py -i 10.10.10.10 -p 139 --username billy --password P@ssw0rd --remote_name 'PC01' --domain PC01  
+Tool used to interact with SMB shares.
+
+$ ./simba.py -i 192.168.254.100 -p 139 --username john --password P@ssw0rd --remote_name '' -t dc  
 [+] Connected  
-[10.10.10.10 - PC01]    
-ADMIN$    
+[192.168.254.100 - dc]  
+ADMIN$  
 C$  
-Backup  
+IPC$  
+NETLOGON  
+SYSVOL  
+test-share
 
-...
-
-$ smb > cd  
-$ [cd] > Enter service name (share name e.g. C$):  c$
-
-...
-
-$ [c$] > Enter command and path (e.g. command \abc\def): ls tools  
+$ smb > use  
+$ [smb > use] > Enter service name (share name e.g. test-share): test-share  
+$ [test-share] > Enter command and path (e.g. command \abc\def): ls  
 .  
 ..  
-CyberChef_v9.37.3  
-getip.exe  
-hashcat-6.2.5
+.hidden.txt  
+test.txt
+
+$ [test-share] > Enter command and path (e.g. command \abc\def): download test.txt    
+15 bytes downloaded!
+
+$ [test-share] > Enter command and path (e.g. command \abc\def): upload  
+Type full path to local file: /tmp/test.txt  
+Type full path to the remote file destination: test22.txt  
+15 bytes uploaded!  
+
+$ smb > exit  
+[+] Closing application...  
+[+] Disconnected  
