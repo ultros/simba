@@ -10,7 +10,7 @@ smb > help
     username (get username)  
     password (get password)  
     remote_name (get remote_name)  
-    target_system_name (get target system name)  
+    domain_name (get system domain name)  
 
 smb > use test-share  
 [test-share] > help  

@@ -28,9 +28,9 @@ def main():
                         dest='remote_name',
                         help='Specify target ipaddress')
 
-    parser.add_argument('-t', '--target_system_name', required=True, type=str,
-                        dest='target_system_name',
-                        help='Specify the system name (E.g. laptop01) to connect to.')
+    parser.add_argument('-d', '--domain_name', required=True, type=str,
+                        dest='domain_name',
+                        help='Specify the domain name (E.g. laptop01) to connect to.')
 
     parser.add_argument("--pdf", required=False, type=str,
                         default=None, dest="pdf",
@@ -43,9 +43,9 @@ def main():
     username = args.username
     password = args.password
     remote_name = args.remote_name
-    target_system_name = args.target_system_name
+    domain_name = args.domain_name
 
-    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system_name)
+    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, domain_name)
 
     smb_client.smb_connect()
     smb_client.smb_list_shares()
@@ -61,7 +61,7 @@ def main():
             print(f"    username (get username)")
             print(f"    password (get password)")
             print(f"    remote_name (get remote_name)")
-            print(f"    target_system_name (get target system name)")
+            print(f"    domain_name (get target domain name)")
 
         if command == "username":
             print(smb_client.username)
@@ -72,8 +72,8 @@ def main():
         if command == "remote_name":
             print(smb_client.remote_name)
 
-        if command == "target_system_name":
-            print(smb_client.target_system_name)
+        if command == "domain_name":
+            print(smb_client.domain_name)
 
         if command == "connect":
             smb_client.smb_connect()

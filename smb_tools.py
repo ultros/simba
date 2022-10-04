@@ -7,13 +7,13 @@ from nmb.NetBIOS import NetBIOS
 
 
 class SmbTools(object):
-    def __init__(self, ip: str, port: int, username: str, password: str, remote_name: str, target_system_name: str):
+    def __init__(self, ip: str, port: int, username: str, password: str, remote_name: str, domain_name: str):
         self.ip = ip
         self.port = port
         self.username = username
         self.password = password
         self.remote_name = remote_name
-        self.target_system_name = target_system_name
+        self.domain_name = domain_name
         self.smb_connection = ""
 
     def smb_connect(self):
@@ -27,11 +27,11 @@ class SmbTools(object):
                       "nmap --script smb-os-discovery.nse -p445 10.10.10.10")
             else:
                 print(f'[+] Target system name: "{netbios_name[0]}" discovered.')
-                self.target_system_name = netbios_name[0]
+                self.domain_name = netbios_name[0]
             netbios.close()
 
             smb_connection = SMBConnection(self.username, self.password,
-                                           self.remote_name, self.target_system_name, use_ntlm_v2=True)
+                                           self.remote_name, self.domain_name, use_ntlm_v2=True)
             if smb_connection.connect(self.ip, self.port):
                 self.smb_connection = smb_connection
                 print("[+] Connected")
@@ -52,7 +52,7 @@ class SmbTools(object):
 
     def smb_list_shares(self):
         try:
-            print(f"[{self.ip} - {self.target_system_name}]")
+            print(f"[{self.ip} - {self.domain_name}]")
             for share in self.smb_connection.listShares():
                 print(share.name)
         except Exception as e:
