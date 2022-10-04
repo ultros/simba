@@ -3,6 +3,7 @@ import os
 
 import smb.smb_structs
 from smb.SMBConnection import SMBConnection
+from nmb.NetBIOS import NetBIOS
 
 
 class SmbTools(object):
@@ -17,6 +18,18 @@ class SmbTools(object):
 
     def smb_connect(self):
         try:
+            print(f"[+] Automatically querying for NetBIOS name...")
+            netbios = NetBIOS()
+            netbios_name = netbios.queryIPForName(self.ip, port=137, timeout=5)
+            if netbios_name is None:
+                print("[!] Could not determine system target (NetBIOS Name) automatically...")
+                print("[+] Try using nmap to get NetBIOS name (target system name):\n "
+                      "nmap --script smb-os-discovery.nse -p445 10.10.10.10")
+            else:
+                print(f'[+] Target system name: "{netbios_name[0]}" discovered.')
+                self.target_system_name = netbios_name[0]
+            netbios.close()
+
             smb_connection = SMBConnection(self.username, self.password,
                                            self.remote_name, self.target_system_name, use_ntlm_v2=True)
             if smb_connection.connect(self.ip, self.port):
@@ -27,7 +40,8 @@ class SmbTools(object):
                 print("[!] Failed to connect...")
 
         except Exception as e:
-            print(e)
+            #print(e)
+            pass
 
     def smb_disconnect(self):
         try:

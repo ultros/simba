@@ -4,6 +4,7 @@ import smb.SMBConnection
 import smb_tools
 
 
+
 def main():
     parser = argparse.ArgumentParser(description="simba - tool for working with SMB")
 
@@ -45,6 +46,7 @@ def main():
     target_system_name = args.target_system_name
 
     smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, target_system_name)
+
     smb_client.smb_connect()
     smb_client.smb_list_shares()
 
