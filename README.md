@@ -3,7 +3,7 @@
 Tool used to interact with SMB shares.
 
 smb > help  
-    Commands:  
+Commands:
 
     shares (list service names/shares)  
     use SERVICE_NAME (connect to specified service name/share)  
@@ -13,7 +13,7 @@ smb > help
     domain_name (get system domain name)  
 
 smb > use test-share  
-[test-share] > help  
+[test-share] > help
 
     ls PATH (list files and directories)  
     download REMOTE_FILENAME LOCAL_FILENAME    
@@ -33,7 +33,7 @@ $ ./simba.py -i 192.168.254.100 -p 139 --username john --password P@ssw0rd --rem
     SYSVOL  
     test-share
 
-$ smb > use test-share  
+$ smb > use test-share
 
     $ [test-share] > ls  
     .  

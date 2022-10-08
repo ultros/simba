@@ -18,15 +18,15 @@ class SmbTools(object):
 
     def smb_connect(self):
         try:
-            print(f"[+] Automatically querying for NetBIOS name...")
+            print(f"[+] Automatically querying for NetBIOS (domain) name...")
             netbios = NetBIOS()
             netbios_name = netbios.queryIPForName(self.ip, port=137, timeout=5)
             if netbios_name is None:
-                print("[!] Could not determine system target (NetBIOS Name) automatically...")
-                print("[+] Try using nmap to get NetBIOS name (target system name):\n "
+                print("[!] Could not determine target (NetBIOS Name/Domain) automatically...")
+                print("[+] Try using nmap to get NetBIOS name (domain name):\n "
                       "nmap --script smb-os-discovery.nse -p445 10.10.10.10")
             else:
-                print(f'[+] Target system name: "{netbios_name[0]}" discovered.')
+                print(f'[+] Target (domain) name: "{netbios_name[0]}" discovered.')
                 self.domain_name = netbios_name[0]
             netbios.close()
 
@@ -40,7 +40,7 @@ class SmbTools(object):
                 print("[!] Failed to connect...")
 
         except Exception as e:
-            #print(e)
+            # print(e)
             pass
 
     def smb_disconnect(self):
@@ -78,7 +78,6 @@ class SmbTools(object):
         except IsADirectoryError:
             print(f"[!] Specify full path including destination file name.")
 
-
     def smb_upload_file(self, service_name: str, local_file: str, share_path: str):
         try:
             if share_path[-1:] == "/":
@@ -102,4 +101,4 @@ class SmbTools(object):
 
         except smb.smb_structs.OperationFailure:
             print(f"Failed to list {service_name} {share_path}: Verify path "
-                  f"(E.g. \directory\pathtofile.exe) OR PERMISSIONS")
+                  f"(E.g. \directory\pathtofile.txt) OR PERMISSIONS")

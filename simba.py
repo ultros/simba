@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import smb.SMBConnection
-import smb_tools
-
+import smbtools
 
 
 def main():
@@ -45,7 +44,7 @@ def main():
     remote_name = args.remote_name
     domain_name = args.domain_name
 
-    smb_client = smb_tools.SmbTools(ip, port, username, password, remote_name, domain_name)
+    smb_client = smbtools.SmbTools(ip, port, username, password, remote_name, domain_name)
 
     smb_client.smb_connect()
     smb_client.smb_list_shares()
@@ -92,28 +91,40 @@ def main():
             service_name = command[4:]
 
             while True:
-                print(f"[{service_name}] > ", end = "")
+                print(f"[{service_name}] > ", end="")
                 command = input()
 
                 if command == "exit":
                     print("Disconnecting from service...")
                     break
 
-                if command[:2] == "ls":
+                if command[:2] == "ls" and len(command) == 2:
                     try:
-                        smb_client.smb_list_files(service_name, command[3:]) # ls /TO/PATH
+                        smb_client.smb_list_files(service_name, "/")  # ls /TO/PATH
                     except smb.SMBConnection.NotReadyError as e:
                         print(e)
 
+                elif command[:3] == "ls ":
+                    try:
+                        smb_client.smb_list_files(service_name, command[3:])
+                    except Exception as e:
+                        print(e)
+
                 if command[:8] == "download":
-                    download_command = command.split(" ", 3)
-                    smb_client.smb_download_file(service_name,
-                                                 download_command[1],
-                                                 download_command[2]) # download REMOTE_FILE LOCAL_DEST
+                    try:
+                        download_command = command.split(" ", 3)
+                        smb_client.smb_download_file(service_name,
+                                                     download_command[1],
+                                                     download_command[2])  # download REMOTE_FILE LOCAL_DEST
+                    except Exception as e:
+                        print(f"Provide a destination file or directory.")
 
                 if command[:6] == "upload":
-                    upload_command = command.split(" ", 3)
-                    smb_client.smb_upload_file(service_name, upload_command[1], upload_command[2])
+                    try:
+                        upload_command = command.split(" ", 3)
+                        smb_client.smb_upload_file(service_name, upload_command[1], upload_command[2])
+                    except Exception as e:
+                        print(f"Provide a destination file or directory.")
 
                 if command == "help":
                     print("   Commands:")
